@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>French Flash Card</title>
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Montserrat:wght@500&family=Sacramento&display=swap" rel="stylesheet">
+</head>
+<body>
+    <h1>Learn the 1000's most commonly used words in French!</h1>
+    <div class="hero-image">
+        <div class="hero-text">
+
+                <p>Press the cross if you dont know the word</p>
+                <p>Press the tick if you know the word</p>
+                <p>Hover over the card to see the english translation</p>
+                <p>Press the speaker icon to hear the french pronunciation</p>
+
+            <a class="btn" href="{{url_for('get_card')}}">Start</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>French Flash Card</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Montserrat:wght@500&family=Sacramento&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script type=text/javascript>
+        $(function() {
+          $('a#speak').bind('click', function() {
+            $.getJSON('/speaker',
+                function(data) {
+              //do nothing
+            });
+            return false;
+          });
+          $('a#right').bind('click', function() {
+            $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+            $.getJSON($SCRIPT_ROOT+"/right",
+                function(data) {
+                    $("#word").text(data.word)
+                    $("#word_eng").text(data.word_eng)
+                    $("#count").text(data.count)
+            });
+            return false;
+          });
+          $('a#wrong').bind('click', function() {
+            $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+            $.getJSON($SCRIPT_ROOT+"/wrong",
+                function(data) {
+                    $("#word").text(data.word)
+                    $("#word_eng").text(data.word_eng)
+            });
+            return false;
+          });
+        });
+  </script>
+</head>
+<body>
+  <h1>Learn the 1000's most commonly used words in French!</h1>
+    <div class="flip-card_hero">
+        <div class="flip-card-inner_hero">
+          <div class="flip-card-front_hero">
+            <img class="card" src="{{ url_for('static', filename='images/card_front.png') }}" alt=front">
+            <div class="hero-text-front">
+              <h3>French</h3>
+              <h1 style="font-size:50px" id="word">{{word}}</h1>
+          </div>
+          </div>
+          <div class="flip-card-back_hero">
+            <img class="card" src="{{ url_for('static', filename='images/card_back.png') }}" alt="back">
+            <div class ="hero-text-back">
+              <h3 class="english">English</h3>
+              <h1 class="english" id="word_eng">{{word_eng}}</h1>
+          </div>
+          </div>
+        </div>
+    </div>
+  <div class='container'>
+            <a href=# id=wrong>
+                <img src="{{ url_for('static', filename='images/wrong.png') }}" style="width: 50px; height: 50px; padding: 10px 50px 10px;" alt="wrong">
+            </a>
+            <a href=# id=speak>
+                <img src="{{ url_for('static', filename='images/speaker-icon.png') }}" style="width: 50px; height: 50px; padding: 10px 50px 10px;" alt="speaker">
+            </a>
+            <a href=# id=right>
+                <img src="{{ url_for('static', filename='images/right.png') }}" style="width: 50px; height: 50px; padding: 10px 50px 10px;" alt="right">
+            </a>
+  </div>
+  <div>
+    <h3>You still have <span id="count">{{count}}</span>&nbsp;words to learn.</h3>
+  </div>
+
+</body>
+</html>

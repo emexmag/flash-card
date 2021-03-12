@@ -1,0 +1,109 @@
+body {
+    background-color: #b1ddc6;
+    text-align: center;
+}
+a {
+  text-decoration: none;
+}
+
+h1 {
+    margin: 50px auto 0 auto;
+    font-family: 'Sacramento', cursive;
+    font-size: 50px;
+    color: #66bfbf;
+}
+h3, p {
+    font-family: 'Montserrat', sans-serif;
+    color: #11999E;
+    padding: 5px;
+}
+.card {
+  width: 500px;
+  height: 329px;
+}
+.english{
+    color: aliceblue;
+}
+.hero-text-front {
+  text-align: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: black;
+    -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.hero-text-back {
+  text-align: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: black;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.flip-card_hero {
+  background-color: transparent;
+  width: 500px;
+  height: 329px;
+  perspective: 1000px; /* Remove this if you don't want the 3D effect */
+  margin: 10px auto 10px auto;
+}
+.flip-card-inner_hero {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.8s;
+  transform-style: preserve-3d;
+}
+.flip-card_hero:hover .flip-card-inner_hero {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front_hero, .flip-card-back_hero {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden; /* Safari */
+  backface-visibility: hidden;
+}
+
+/* Style the front side (fallback if image is missing) */
+.flip-card-front_hero {
+  background-color: #b1ddc6;;
+  color: black;
+}
+
+/* Style the back side */
+.flip-card-back_hero {
+  background-color: #b1ddc6;
+  color: white;
+  transform: rotateY(180deg);
+}
+
+.btn {
+    background: #66BFBF;
+    background-image: -webkit-linear-gradient(top, #66BFBF, #11999E);
+    background-image: -moz-linear-gradient(top, #66BFBF, #11999E);
+    background-image: -ms-linear-gradient(top, #66BFBF, #11999E);
+    background-image: -o-linear-gradient(top, #66BFBF, #11999E);
+    background-image: -webkit-gradient(to bottom, #66BFBF, #11999E);
+    font-family: 'Montserrat', sans-serif;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    color: #FFFFFF;
+    font-size: 20px;
+    font-weight: 100;
+    text-decoration: none;
+    display: inline-block;
+    cursor: pointer;
+    text-align: center;
+    padding: 20px;
+ }
+/*------------------------
