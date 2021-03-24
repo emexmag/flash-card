@@ -1,6 +1,11 @@
 
 import pandas
 import random
+import os.path
+
+my_path = os.path.abspath(os.path.dirname(__file__))
+words_to_learn_path = os.path.join(my_path, "data/words_to_learn.csv")
+common_words_path = os.path.join(my_path,"data/french_1000_common.csv")
 
 class FrenchWords:
 
@@ -13,9 +18,9 @@ class FrenchWords:
 
     def load_data(self):
         try:
-            data = pandas.read_csv("data/words_to_learn.csv")
+            data = pandas.read_csv(words_to_learn_path)
         except FileNotFoundError:
-            original_data = pandas.read_csv("data/french_1000_common.csv", sep=";")
+            original_data = pandas.read_csv(common_words_path, sep=";")
             self.to_learn = original_data.to_dict(orient="records")
         else:
             self.to_learn = data.to_dict(orient="records")
@@ -26,7 +31,7 @@ class FrenchWords:
     def is_known(self):
         self.to_learn.remove(self.current_card)
         data = pandas.DataFrame(self.to_learn)
-        data.to_csv("data/words_to_learn.csv", index=False)
+        data.to_csv(words_to_learn_path, index=False)
         self.count = len(self.to_learn)
         self.next_card()
         return

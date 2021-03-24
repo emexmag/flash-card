@@ -3,7 +3,14 @@ import os
 from google.cloud import texttospeech
 from playsound import playsound
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="data/key.json"
+my_path = os.path.abspath(os.path.dirname(__file__))
+credentials_path = os.path.join(my_path, "data/french-306416-fa272493f67b.json")
+output_path = os.path.join(my_path, "data/output.mp3")
+
+#if google credentials are not there load them
+a = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
+if a == None:
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
 
 def synthesize_text_file(text):
     """Synthesizes speech from the input file of text."""
@@ -26,8 +33,8 @@ def synthesize_text_file(text):
     )
 
     # The response's audio_content is binary.
-    with open("data/output.mp3", "wb") as out:
+    with open(output_path, "wb") as out:
         out.write(response.audio_content)
 
 def play_word():
-    playsound("data/output.mp3")
+    playsound(output_path)
