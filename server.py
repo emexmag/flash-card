@@ -7,6 +7,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
 from forms import UserRegisterForm, UserLoginForm
+from sqlalchemy.ext.automap import automap_base
 import os
 
 app = Flask(__name__)
@@ -19,23 +20,22 @@ login_manager.init_app(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL",  "sqlite:///french.db")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+Base= automap_base()
 
 ##CONFIGURE TABLES
 
 class FrenchdbWords(db.Model):
     __tablename__ = "french_words"
     id = db.Column(db.Integer, primary_key=True)
-    french = db.Column(db.String(250), unique=True, nullable=False)
-    english = db.Column(db.String(250), unique=True, nullable=False)
-    french_words = relationship("WordsLearned", back_populates="words")
+    french = db.Column(db.String(250), nullable=False)
+    english = db.Column(db.String(250), nullable=False)
 
 class WordsLearned(db.Model):
     __tablename__ = "words_learned"
     id = db.Column(db.Integer, primary_key=True)
     word_id = db.Column(db.Integer, db.ForeignKey('french_words.id'))
-    words = relationship("FrenchdbWords", back_populates="french_words")
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    learner = relationship("User", back_populates="user_words")
+
 
 class User(UserMixin,db.Model):
     __tablename__ = "user"
@@ -43,11 +43,10 @@ class User(UserMixin,db.Model):
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(100), unique=True, nullable=False)
     name = db.Column(db.String(1000))
-    user_words = relationship("WordsLearned", back_populates="learner")
 
 db.create_all()
 
-french_words = FrenchWords()
+french_words = FrenchWords(db, Base)
 
 @app.route('/')
 def home():
@@ -56,15 +55,16 @@ def home():
 @app.route('/card')
 @login_required
 def get_card():
-    word = french_words.current_card["French"]
-    word_eng = french_words.current_card["English"]
+    word = french_words.current_card["french"]
+    word_eng = french_words.current_card["english"]
+    card_id = french_words.current_card["id"]
     count = french_words.count
-    return render_template("card.html", word=word, word_eng=word_eng, count=count)
+    return render_template("card.html", word=word, word_eng=word_eng, count=count, card_id=card_id)
 
 @app.route('/speaker')
 @login_required
 def speaker():
-    word = french_words.current_card["French"]
+    word = french_words.current_card["french"]
     speech.synthesize_text_file(word)
     speech.play_word()
     return ("nothing")
@@ -73,20 +73,22 @@ def speaker():
 @login_required
 def wrong():
     french_words.next_card()
-    word = french_words.current_card["French"]
-    word_eng = french_words.current_card["English"]
-    return jsonify(word=word, word_eng=word_eng)
+    word = french_words.current_card["french"]
+    word_eng = french_words.current_card["english"]
+    card_id = french_words.current_card["id"]
+    return jsonify(word=word, word_eng=word_eng, card_id=card_id)
 
 @app.route('/right', methods= ['GET'])
 @login_required
 def right():
 
     french_words.is_known()
-    word = french_words.current_card["French"]
-    word_eng = french_words.current_card["English"]
+    word = french_words.current_card["french"]
+    word_eng = french_words.current_card["english"]
+    card_id = french_words.current_card["id"]
     count = french_words.count
 
-    return jsonify(word=word, word_eng=word_eng, count=count)
+    return jsonify(word=word, word_eng=word_eng, count=count, card_id=card_id)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -114,6 +116,8 @@ def register():
         db.session.add(new_user)
         db.session.commit()
         login_user(new_user)
+        french_words.set_id(current_user.id)
+        french_words.load_from_table()
         return redirect(url_for('home'))
 
     return render_template("register.html", form=form)
@@ -135,6 +139,8 @@ def login():
             return redirect(url_for('login'))
         else:
             login_user(user)
+            french_words.set_id(current_user.id)
+            french_words.load_from_table()
             return redirect(url_for('home'))
     return render_template("login.html", form=form)
 

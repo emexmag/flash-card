@@ -25,6 +25,8 @@
                     $("#word").text(data.word)
                     $("#word_eng").text(data.word_eng)
                     $("#count").text(data.count)
+                    $("#card_id").text(data.card_id)
+
             });
             return false;
           });
@@ -34,6 +36,7 @@
                 function(data) {
                     $("#word").text(data.word)
                     $("#word_eng").text(data.word_eng)
+                    $("#card_id").text(data.card_id)
             });
             return false;
           });
@@ -47,16 +50,18 @@
           <div class="flip-card-front_hero">
             <img class="card" src="{{ url_for('static', filename='images/card_front.png') }}" alt=front">
             <div class="hero-text-front">
-              <h3>French</h3>
-              <h1 style="font-size:50px" id="word">{{word}}</h1>
-          </div>
+                <h1 id="card_id">{{card_id}}</h1>
+                <h3>French</h3>
+                <h1 style="font-size:50px" id="word">{{word}}</h1>
+            </div>
           </div>
           <div class="flip-card-back_hero">
             <img class="card" src="{{ url_for('static', filename='images/card_back.png') }}" alt="back">
             <div class ="hero-text-back">
-              <h3 class="english">English</h3>
-              <h1 class="english" id="word_eng">{{word_eng}}</h1>
-          </div>
+                <h1 class="english" id="card_id">{{card_id}}</h1>
+                <h3 class="english">English</h3>
+                <h1 class="english" id="word_eng">{{word_eng}}</h1>
+            </div>
           </div>
         </div>
     </div>
