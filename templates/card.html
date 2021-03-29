@@ -26,7 +26,8 @@
                     $("#word_eng").text(data.word_eng)
                     $("#count").text(data.count)
                     $("#card_id").text(data.card_id)
-
+                    $("#phrase_fr").text(data.phrase_fr)
+                    $("#phrase_en").text(data.phrase_en)
             });
             return false;
           });
@@ -37,6 +38,8 @@
                     $("#word").text(data.word)
                     $("#word_eng").text(data.word_eng)
                     $("#card_id").text(data.card_id)
+                    $("#phrase_fr").text(data.phrase_fr)
+                    $("#phrase_en").text(data.phrase_en)
             });
             return false;
           });
@@ -44,23 +47,25 @@
   </script>
 </head>
 <body>
-  <h1>Learn the 1000's most commonly used words in French!</h1>
+  <h1>Learn the 5000's most commonly used words in French!</h1>
     <div class="flip-card_hero">
         <div class="flip-card-inner_hero">
           <div class="flip-card-front_hero">
             <img class="card" src="{{ url_for('static', filename='images/card_front.png') }}" alt=front">
             <div class="hero-text-front">
-                <h1 id="card_id">{{card_id}}</h1>
-                <h3>French</h3>
-                <h1 style="font-size:50px" id="word">{{word}}</h1>
+                <h1 style="font-size:30px" id="card_id">{{card_id}}</h1>
+                <h3 style="font-size:18px">French</h3>
+                <h1 id="word">{{word}}</h1>
+                <h3  id="phrase_fr">{{phrase_fr}}</h3>
             </div>
           </div>
           <div class="flip-card-back_hero">
             <img class="card" src="{{ url_for('static', filename='images/card_back.png') }}" alt="back">
             <div class ="hero-text-back">
-                <h1 class="english" id="card_id">{{card_id}}</h1>
-                <h3 class="english">English</h3>
-                <h1 class="english" id="word_eng">{{word_eng}}</h1>
+                <h1 style="font-size:30px" class="english" id="card_id">{{card_id}}</h1>
+                <h3 style="font-size:18px" class="english">English</h3>
+                <h1  class="english" id="word_eng">{{word_eng}}</h1>
+                <h3  id="phrase_en">{{phrase_en}}</h3>
             </div>
           </div>
         </div>

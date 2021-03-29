@@ -6,9 +6,8 @@ from sqlalchemy import or_
 
 
 my_path = os.path.abspath(os.path.dirname(__file__))
-words_to_learn_path = os.path.join(my_path, "data/words_to_learn.csv")
-common_words_path = os.path.join(my_path,"data/french_1000_common.csv")
-
+#common_words_path = os.path.join(my_path,"data/french_1000_common.csv")
+common_words_path = os.path.join(my_path,"data/5000_wordlist_french.csv")
 
 class FrenchWords:
 
@@ -32,16 +31,15 @@ class FrenchWords:
             original_data = pandas.read_csv(common_words_path, sep=";")
             original_data.to_sql("french_words", con=self.db.engine,if_exists="append",index=False)
             self.db.session.commit()
-        print(self.user_id)
+
         results = self.db.session.query(French).join(Words, French.id == Words.word_id, isouter=True).filter(or_(Words.user_id == None,Words.user_id !=self.user_id)).all()
-        print(results)
+
         for result in results:
             dict = {column.name: getattr(result, column.name) for column in result.__table__.columns}
             self.to_learn.append(dict)
 
         self.next_card()
         self.count = len(self.to_learn)
-        print(self.to_learn)
 
     def set_id(self,id):
         self.user_id = id

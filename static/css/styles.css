@@ -7,8 +7,9 @@ a {
 }
 
 h1 {
-    margin: 50px auto 50px auto;
+    margin: 10px auto 10px auto;
     font-family: 'Sacramento', cursive;
+    font-weight: bold;
     font-size: 50px;
     color: #66bfbf;
 }
@@ -24,8 +25,24 @@ h3, p {
 .english{
     color: aliceblue;
 }
+.hero-text {
+    width: 60%;
+    margin: 60px auto 60px auto;
+    text-align: left;
+    line-height: 2;
+}
+
+.hero-image{
+    width: 375px;
+    height: 500px;
+    border-radius: 5%;
+    margin-right: 30px;
+    float: left;
+}
+
 .hero-text-front {
   text-align: center;
+      width: 460px;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -37,6 +54,8 @@ h3, p {
 
 .hero-text-back {
   text-align: center;
+      width: 500px;
+  height: 329px;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -46,12 +65,13 @@ h3, p {
   backface-visibility: hidden;
 }
 
+
 .flip-card_hero {
   background-color: transparent;
   width: 500px;
   height: 329px;
   perspective: 1000px; /* Remove this if you don't want the 3D effect */
-  margin: 10px auto 10px auto;
+  margin: 50px auto 10px auto;
 }
 .flip-card-inner_hero {
   position: relative;

@@ -20,15 +20,17 @@ login_manager.init_app(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL",  "sqlite:///french.db")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
-Base= automap_base()
+Base = automap_base()
 
 ##CONFIGURE TABLES
 
 class FrenchdbWords(db.Model):
     __tablename__ = "french_words"
     id = db.Column(db.Integer, primary_key=True)
-    french = db.Column(db.String(250), nullable=False)
-    english = db.Column(db.String(250), nullable=False)
+    word_fr = db.Column(db.String(250), nullable=False)
+    word_en = db.Column(db.String(250), nullable=False)
+    phrase_fr = db.Column(db.String(1000), nullable=False)
+    phrase_en = db.Column(db.String(100), nullable=False)
 
 class WordsLearned(db.Model):
     __tablename__ = "words_learned"
@@ -46,7 +48,13 @@ class User(UserMixin,db.Model):
 
 db.create_all()
 
-french_words = FrenchWords(db, Base)
+french_words_objects = {}
+
+def add_user():
+    french_words = FrenchWords(db, Base)
+    french_words.set_id(current_user.id)
+    french_words.load_from_table()
+    french_words_objects[str(current_user.id)] = french_words
 
 @app.route('/')
 def home():
@@ -55,40 +63,48 @@ def home():
 @app.route('/card')
 @login_required
 def get_card():
-    word = french_words.current_card["french"]
-    word_eng = french_words.current_card["english"]
-    card_id = french_words.current_card["id"]
-    count = french_words.count
-    return render_template("card.html", word=word, word_eng=word_eng, count=count, card_id=card_id)
+    word = french_words_objects[str(current_user.id)].current_card["word_fr"]
+    word_eng = french_words_objects[str(current_user.id)].current_card["word_en"]
+    card_id = french_words_objects[str(current_user.id)].current_card["id"]
+    count = french_words_objects[str(current_user.id)].count
+    phrase_fr = french_words_objects[str(current_user.id)].current_card["phrase_fr"]
+    phrase_en = french_words_objects[str(current_user.id)].current_card["phrase_en"]
+    return render_template("card.html", word=word, word_eng=word_eng, count=count, card_id=card_id, phrase_fr=phrase_fr, phrase_en=phrase_en)
 
 @app.route('/speaker')
 @login_required
 def speaker():
-    word = french_words.current_card["french"]
+    word = french_words_objects[str(current_user.id)].current_card["word_fr"]
     speech.synthesize_text_file(word)
+    speech.play_word()
+    phrase = french_words_objects[str(current_user.id)].current_card["phrase_fr"]
+    speech.synthesize_text_file(phrase)
     speech.play_word()
     return ("nothing")
 
 @app.route('/wrong', methods= ['GET'])
 @login_required
 def wrong():
-    french_words.next_card()
-    word = french_words.current_card["french"]
-    word_eng = french_words.current_card["english"]
-    card_id = french_words.current_card["id"]
-    return jsonify(word=word, word_eng=word_eng, card_id=card_id)
+    french_words_objects[str(current_user.id)].next_card()
+    word = french_words_objects[str(current_user.id)].current_card["word_fr"]
+    word_eng = french_words_objects[str(current_user.id)].current_card["word_en"]
+    card_id = french_words_objects[str(current_user.id)].current_card["id"]
+    phrase_fr = french_words_objects[str(current_user.id)].current_card["phrase_fr"]
+    phrase_en = french_words_objects[str(current_user.id)].current_card["phrase_en"]
+    return jsonify(word=word, word_eng=word_eng, card_id=card_id, phrase_fr=phrase_fr, phrase_en=phrase_en)
 
 @app.route('/right', methods= ['GET'])
 @login_required
 def right():
 
-    french_words.is_known()
-    word = french_words.current_card["french"]
-    word_eng = french_words.current_card["english"]
-    card_id = french_words.current_card["id"]
-    count = french_words.count
-
-    return jsonify(word=word, word_eng=word_eng, count=count, card_id=card_id)
+    french_words_objects[str(current_user.id)].is_known()
+    word = french_words_objects[str(current_user.id)].current_card["word_fr"]
+    word_eng = french_words_objects[str(current_user.id)].current_card["word_en"]
+    card_id = french_words_objects[str(current_user.id)].current_card["id"]
+    count = french_words_objects[str(current_user.id)].count
+    phrase_fr = french_words_objects[str(current_user.id)].current_card["phrase_fr"]
+    phrase_en = french_words_objects[str(current_user.id)].current_card["phrase_en"]
+    return jsonify(word=word, word_eng=word_eng, count=count, card_id=card_id, phrase_fr=phrase_fr, phrase_en=phrase_en)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -111,13 +127,12 @@ def register():
         new_user = User(
             email=form.email.data,
             name=form.name.data,
-            password=hash_and_salted_password,
+            password=hash_and_salted_password
         )
         db.session.add(new_user)
         db.session.commit()
         login_user(new_user)
-        french_words.set_id(current_user.id)
-        french_words.load_from_table()
+        add_user()
         return redirect(url_for('home'))
 
     return render_template("register.html", form=form)
@@ -139,8 +154,7 @@ def login():
             return redirect(url_for('login'))
         else:
             login_user(user)
-            french_words.set_id(current_user.id)
-            french_words.load_from_table()
+            add_user()
             return redirect(url_for('home'))
     return render_template("login.html", form=form)
 
@@ -148,6 +162,7 @@ def login():
 @app.route("/logout")
 @login_required
 def logout():
+    french_words_objects.pop(str(current_user.id))
     logout_user()
     return redirect(url_for('home'))
 

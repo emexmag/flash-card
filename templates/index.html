@@ -8,22 +8,28 @@
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Montserrat:wght@500&family=Sacramento&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>Learn the 1000's most commonly used words in French!</h1>
-    <div class="hero-image">
-        <div class="hero-text">
+    <h1>Learn the 5000's most commonly used words in French!</h1>
 
+    <div class="hero-text">
+            {% if not current_user.is_authenticated %}
+            <img class="hero-image" src="{{ url_for('static', filename='images/dex-ezekiel-EobQaSfI-EY-unsplash.jpg') }}" alt="Photo by Dex Ezekiel on Unsplash">
+                <p>A Frequency Dictionary of French</p>
+                <p>The 5000 most Common French Words</p>
+                <p>Vocabulary Training : Learn the Vocabulary you need to know</p>
+                <p>to improve you Writing, Speaking and Comprehension</p>
+
+            <a class="btn" href="{{url_for('login')}}">Log in</a>
+            <a class="btn" href="{{url_for('register')}}">Register</a>
+            {% else %}
+                <img class="hero-image" src="{{ url_for('static', filename='images/charles-deluvio-oWTW-jNGl9I-unsplash.jpg') }}" alt="Photo by Charles Deluvio on Unsplash">
                 <p>Press the cross if you dont know the word</p>
                 <p>Press the tick if you know the word</p>
                 <p>Hover over the card to see the english translation</p>
                 <p>Press the speaker icon to hear the french pronunciation</p>
-            {% if not current_user.is_authenticated %}
-            <a class="btn" href="{{url_for('login')}}">Log in</a>
-            <a class="btn" href="{{url_for('register')}}">Register</a>
-            {% else %}
             <a class="btn" href="{{url_for('get_card')}}">Start Learning now!</a>
                 <a class="btn" href="{{url_for('logout')}}">Log out</a>
             {% endif %}
-        </div>
     </div>
+
 </body>
 </html>
