@@ -8,6 +8,7 @@ from flask_login import UserMixin, login_user, LoginManager, login_required, cur
 from forms import UserRegisterForm, UserLoginForm
 from sqlalchemy.ext.automap import automap_base
 import os
+import sys
 
 my_path = os.path.abspath(os.path.dirname(__file__))
 credentials_path = os.path.join(my_path, "data/french-306416-fa272493f67b.json")
@@ -59,6 +60,7 @@ def add_user():
     french_words.load_from_table()
     french_words_objects[str(current_user.id)] = french_words
     print(french_words_objects)
+    sys.stdout.flush()
 
 @app.route('/')
 def home():
