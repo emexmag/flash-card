@@ -58,6 +58,7 @@ def add_user():
     french_words.set_id(current_user.id)
     french_words.load_from_table()
     french_words_objects[str(current_user.id)] = french_words
+    print(french_words_objects)
 
 @app.route('/')
 def home():
