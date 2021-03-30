@@ -69,6 +69,8 @@ def home():
 @app.route('/card')
 @login_required
 def get_card():
+    print(french_words_objects)
+    sys.stdout.flush()
     word = french_words_objects[str(current_user.id)].current_card["word_fr"]
     word_eng = french_words_objects[str(current_user.id)].current_card["word_en"]
     card_id = french_words_objects[str(current_user.id)].current_card["id"]
@@ -94,6 +96,8 @@ def streamogg():
 @app.route('/wrong', methods= ['GET'])
 @login_required
 def wrong():
+    print(french_words_objects)
+    sys.stdout.flush()
     french_words_objects[str(current_user.id)].next_card()
     word = french_words_objects[str(current_user.id)].current_card["word_fr"]
     word_eng = french_words_objects[str(current_user.id)].current_card["word_en"]
@@ -105,7 +109,8 @@ def wrong():
 @app.route('/right', methods= ['GET'])
 @login_required
 def right():
-
+    print(french_words_objects)
+    sys.stdout.flush()
     french_words_objects[str(current_user.id)].is_known()
     word = french_words_objects[str(current_user.id)].current_card["word_fr"]
     word_eng = french_words_objects[str(current_user.id)].current_card["word_en"]
