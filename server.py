@@ -1,14 +1,17 @@
 from french import FrenchWords
 import speech
-from flask import Flask, render_template, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, redirect, url_for, flash, jsonify, Response
 from flask_bootstrap import Bootstrap
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import relationship
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
 from forms import UserRegisterForm, UserLoginForm
 from sqlalchemy.ext.automap import automap_base
 import os
+
+my_path = os.path.abspath(os.path.dirname(__file__))
+credentials_path = os.path.join(my_path, "data/french-306416-fa272493f67b.json")
+output_path = os.path.join(my_path, "static/output.ogg")
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "any-secret-code-will-do")
@@ -75,12 +78,15 @@ def get_card():
 @login_required
 def speaker():
     word = french_words_objects[str(current_user.id)].current_card["word_fr"]
-    speech.synthesize_text_file(word)
-    speech.play_word()
     phrase = french_words_objects[str(current_user.id)].current_card["phrase_fr"]
-    speech.synthesize_text_file(phrase)
-    speech.play_word()
-    return ("nothing")
+    text=f"{word}...Exemple de phrase...{phrase}"
+    speech.synthesize_text_file(text, current_user.id)
+    return jsonify(word=word)
+
+@app.route("/ogg")
+def streamogg():
+
+    return Response(speech.generate(current_user.id), mimetype="audio/ogg")
 
 @app.route('/wrong', methods= ['GET'])
 @login_required

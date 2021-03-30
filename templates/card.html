@@ -12,9 +12,14 @@
   <script type=text/javascript>
         $(function() {
           $('a#speak').bind('click', function() {
-            $.getJSON('/speaker',
+            $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+            $.getJSON($SCRIPT_ROOT+"/speaker",
                 function(data) {
-              //do nothing
+              //play audio
+
+                    document.getElementById("ogg_src").src = "/ogg";
+                    document.getElementById("wordaudio").load();
+                    document.getElementById("wordaudio").play();
             });
             return false;
           });
@@ -51,12 +56,12 @@
     <div class="flip-card_hero">
         <div class="flip-card-inner_hero">
           <div class="flip-card-front_hero">
-            <img class="card" src="{{ url_for('static', filename='images/card_front.png') }}" alt=front">
+            <img class="card" src="{{ url_for('static', filename='images/card_front.png') }}" alt="front">
             <div class="hero-text-front">
                 <h1 style="font-size:30px" id="card_id">{{card_id}}</h1>
                 <h3 style="font-size:18px">French</h3>
                 <h1 id="word">{{word}}</h1>
-                <h3  id="phrase_fr">{{phrase_fr}}</h3>
+                <h3 id="phrase_fr">{{phrase_fr}}</h3>
             </div>
           </div>
           <div class="flip-card-back_hero">
@@ -70,16 +75,18 @@
           </div>
         </div>
     </div>
-  <div class='container'>
-            <a href=# id=wrong>
+
+  <div class="container">
+            <a href=# id="wrong">
                 <img src="{{ url_for('static', filename='images/wrong.png') }}" style="width: 50px; height: 50px; padding: 10px 50px 10px;" alt="wrong">
             </a>
-            <a href=# id=speak>
+            <a href=# id="speak">
                 <img src="{{ url_for('static', filename='images/speaker-icon.png') }}" style="width: 50px; height: 50px; padding: 10px 50px 10px;" alt="speaker">
             </a>
-            <a href=# id=right>
+            <a href=# id="right">
                 <img src="{{ url_for('static', filename='images/right.png') }}" style="width: 50px; height: 50px; padding: 10px 50px 10px;" alt="right">
             </a>
+            <video id="wordaudio" controls><source id="ogg_src" src="/ogg" type="audio/ogg"></video>
   </div>
   <div>
     <h3>You still have <span id="count">{{count}}</span>&nbsp;words to learn.</h3>
