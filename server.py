@@ -9,6 +9,8 @@ from forms import UserRegisterForm, UserLoginForm
 from sqlalchemy.ext.automap import automap_base
 import os
 from flask_caching import Cache
+import bmemcached
+
 
 my_path = os.path.abspath(os.path.dirname(__file__))
 credentials_path = os.path.join(my_path, "data/french-306416-fa272493f67b.json")
@@ -25,8 +27,22 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL",  "sqlite:
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 Base = automap_base()
-cache = Cache()
-cache.init_app(app, config={'CACHE_TYPE': 'simple'})
+
+servers = os.environ.get('MEMCACHIER_SERVERS', '').split(',')
+user = os.environ.get('MEMCACHIER_USERNAME', '')
+passw = os.environ.get('MEMCACHIER_PASSWORD', '')
+
+mc = bmemcached.Client(servers, username=user, password=passw)
+
+cache_servers = os.environ.get('MEMCACHIER_SERVERS')
+if cache_servers == None:
+    cache = Cache()
+    cache.init_app(app, config={'CACHE_TYPE': 'simple'})
+else:
+    servers = os.environ.get('MEMCACHIER_SERVERS', '').split(',')
+    user = os.environ.get('MEMCACHIER_USERNAME', '')
+    passw = os.environ.get('MEMCACHIER_PASSWORD', '')
+    cache = bmemcached.Client(servers, username=user, password=passw)
 
 ##CONFIGURE TABLES
 
