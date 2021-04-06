@@ -4,7 +4,12 @@ from google.cloud import texttospeech
 
 my_path = os.path.abspath(os.path.dirname(__file__))
 credentials_path = os.path.join(my_path, "data/french-306416-fa272493f67b.json")
-output_path = os.path.join(my_path, "static/output.ogg")
+
+prod_path = os.environ.get('AUDIO_PATH')
+if prod_path == None:
+    output_path = os.path.join(my_path, "static/")
+else:
+    output_path = prod_path
 
 #if google credentials are not there load them
 a = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
@@ -32,14 +37,14 @@ def synthesize_text_file(text,id):
         request={"input": input_text, "voice": voice, "audio_config": audio_config}
     )
 
-    output_path = os.path.join(my_path, f"static/{id}_output.ogg")
+    audio_path = os.path.join(output_path, f"{id}_output.ogg")
     # The response's audio_content is binary.
-    with open(output_path, "wb") as out:
+    with open(audio_path, "wb") as out:
         out.write(response.audio_content)
 
 def generate(id):
-    output_path = os.path.join(my_path, f"static/{id}_output.ogg")
-    with open(output_path, "rb") as fogg:
+    audio_path = os.path.join(output_path, f"{id}_output.ogg")
+    with open(audio_path, "rb") as fogg:
         data = fogg.read(1024)
         while data:
             yield data
