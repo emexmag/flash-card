@@ -28,12 +28,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 Base = automap_base()
 
-servers = os.environ.get('MEMCACHIER_SERVERS', '').split(',')
-user = os.environ.get('MEMCACHIER_USERNAME', '')
-passw = os.environ.get('MEMCACHIER_PASSWORD', '')
-
-mc = bmemcached.Client(servers, username=user, password=passw)
-
 cache_servers = os.environ.get('MEMCACHIER_SERVERS')
 if cache_servers == None:
     cache = Cache()
