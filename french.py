@@ -6,18 +6,41 @@ from sqlalchemy import or_
 
 
 my_path = os.path.abspath(os.path.dirname(__file__))
-#common_words_path = os.path.join(my_path,"data/french_1000_common.csv")
-common_words_path = os.path.join(my_path,"data/5000_wordlist_french.csv")
+common_words_path = os.path.join(my_path, "data/5000_wordlist_french.csv")
 
 class FrenchWords:
 
-    def __init__(self, db, Base):
+    def __init__(self):
             self.current_card = {}
             self.to_learn = []
-            self.count=0
-            self.db=db
-            self.Base = Base
+            self.count = 0
             self.user_id = 0
+
+    def load_words(self, words):
+
+        self.to_learn = [word for word in words]
+        self.next_card()
+        self.count = len(self.to_learn)
+
+    def set_id(self, user_id):
+        self.user_id = user_id
+
+    def is_known(self):
+
+        self.to_learn.remove(self.current_card)
+        self.count = len(self.to_learn)
+        self.next_card()
+
+    def next_card(self):
+        self.current_card = random.choice(self.to_learn)
+
+class LoadData:
+    def __init__(self, db, Base, user_id):
+            self.to_learn = []
+            self.count = 0
+            self.db = db
+            self.Base = Base
+            self.user_id = user_id
 
     def load_from_table(self):
         self.Base.prepare(self.db.engine, reflect=True)
@@ -38,24 +61,11 @@ class FrenchWords:
             dict = {column.name: getattr(result, column.name) for column in result.__table__.columns}
             self.to_learn.append(dict)
 
-        self.next_card()
         self.count = len(self.to_learn)
 
-    def set_id(self,id):
-        self.user_id = id
-
-    def is_known(self):
+    def save_known(self, current_card):
         self.Base.prepare(self.db.engine, reflect=True)
         Words = self.Base.classes.words_learned
-
-        insert = Words(word_id = self.current_card["id"], user_id=self.user_id)
+        insert = Words(word_id = current_card["id"], user_id=self.user_id)
         self.db.session.add(insert)
         self.db.session.commit()
-        self.to_learn.remove(self.current_card)
-        self.count = len(self.to_learn)
-        self.next_card()
-
-    def next_card(self):
-        self.current_card = random.choice(self.to_learn)
-
-

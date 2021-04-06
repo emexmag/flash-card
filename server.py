@@ -1,4 +1,4 @@
-from french import FrenchWords
+from french import FrenchWords, LoadData
 import speech
 from flask import Flask, render_template, redirect, url_for, flash, jsonify, Response
 from flask_bootstrap import Bootstrap
@@ -8,7 +8,7 @@ from flask_login import UserMixin, login_user, LoginManager, login_required, cur
 from forms import UserRegisterForm, UserLoginForm
 from sqlalchemy.ext.automap import automap_base
 import os
-import sys
+from flask_caching import Cache
 
 my_path = os.path.abspath(os.path.dirname(__file__))
 credentials_path = os.path.join(my_path, "data/french-306416-fa272493f67b.json")
@@ -25,6 +25,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL",  "sqlite:
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 Base = automap_base()
+cache = Cache()
+cache.init_app(app, config={'CACHE_TYPE': 'simple'})
 
 ##CONFIGURE TABLES
 
@@ -55,12 +57,22 @@ db.create_all()
 french_words_objects = {}
 
 def add_user():
-    french_words = FrenchWords(db, Base)
+
+    word_list = LoadData(db,Base, current_user.id)
+    word_list.load_from_table()
+    french_words = FrenchWords()
     french_words.set_id(current_user.id)
-    french_words.load_from_table()
-    french_words_objects[str(current_user.id)] = french_words
+    french_words.load_words(word_list.to_learn)
+    french_words_objects = cache.get('user_objects')
+
+    if french_words_objects == None:
+        french_words_objects = {}
+        french_words_objects[str(current_user.id)] = french_words
+        cache.set('user_objects', french_words_objects)
+    else:
+        french_words_objects[str(current_user.id)] = french_words
+        cache.set('user_objects', french_words_objects)
     print(french_words_objects)
-    sys.stdout.flush()
 
 @app.route('/')
 def home():
@@ -69,8 +81,8 @@ def home():
 @app.route('/card')
 @login_required
 def get_card():
+    french_words_objects = cache.get('user_objects')
     print(french_words_objects)
-    sys.stdout.flush()
     word = french_words_objects[str(current_user.id)].current_card["word_fr"]
     word_eng = french_words_objects[str(current_user.id)].current_card["word_en"]
     card_id = french_words_objects[str(current_user.id)].current_card["id"]
@@ -82,6 +94,7 @@ def get_card():
 @app.route('/speaker')
 @login_required
 def speaker():
+    french_words_objects = cache.get('user_objects')
     word = french_words_objects[str(current_user.id)].current_card["word_fr"]
     phrase = french_words_objects[str(current_user.id)].current_card["phrase_fr"]
     text=f"{word}...Exemple de phrase...{phrase}"
@@ -89,6 +102,7 @@ def speaker():
     return jsonify(word=word)
 
 @app.route("/ogg")
+@login_required
 def streamogg():
 
     return Response(speech.generate(current_user.id), mimetype="audio/ogg")
@@ -96,22 +110,26 @@ def streamogg():
 @app.route('/wrong', methods= ['GET'])
 @login_required
 def wrong():
-    print(french_words_objects)
-    sys.stdout.flush()
+    french_words_objects = cache.get('user_objects')
     french_words_objects[str(current_user.id)].next_card()
+    cache.set('user_objects', french_words_objects)
     word = french_words_objects[str(current_user.id)].current_card["word_fr"]
     word_eng = french_words_objects[str(current_user.id)].current_card["word_en"]
     card_id = french_words_objects[str(current_user.id)].current_card["id"]
+    count = french_words_objects[str(current_user.id)].count
     phrase_fr = french_words_objects[str(current_user.id)].current_card["phrase_fr"]
     phrase_en = french_words_objects[str(current_user.id)].current_card["phrase_en"]
-    return jsonify(word=word, word_eng=word_eng, card_id=card_id, phrase_fr=phrase_fr, phrase_en=phrase_en)
+    return jsonify(word=word, word_eng=word_eng, count=count, card_id=card_id, phrase_fr=phrase_fr, phrase_en=phrase_en)
 
 @app.route('/right', methods= ['GET'])
 @login_required
 def right():
-    print(french_words_objects)
-    sys.stdout.flush()
+
+    french_words_objects = cache.get('user_objects')
+    word_list = LoadData(db, Base, current_user.id)
+    word_list.save_known(french_words_objects[str(current_user.id)].current_card)
     french_words_objects[str(current_user.id)].is_known()
+    cache.set('user_objects', french_words_objects)
     word = french_words_objects[str(current_user.id)].current_card["word_fr"]
     word_eng = french_words_objects[str(current_user.id)].current_card["word_en"]
     card_id = french_words_objects[str(current_user.id)].current_card["id"]
@@ -176,7 +194,9 @@ def login():
 @app.route("/logout")
 @login_required
 def logout():
+    french_words_objects = cache.get('user_objects')
     french_words_objects.pop(str(current_user.id))
+    cache.set('user_objects',french_words_objects)
     logout_user()
     return redirect(url_for('home'))
 
