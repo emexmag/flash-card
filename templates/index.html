@@ -26,7 +26,7 @@
                 <p>Press the tick if you know the word</p>
                 <p>Hover over the card to see the english translation</p>
                 <p>Press the speaker icon to hear the french pronunciation</p>
-                <p>Hello, current user id: {{ current_user.id }}</p>
+                <p>Hello, {{ current_user.name }}</p>
             <a class="btn" href="{{url_for('get_card')}}">Start Learning now!</a>
                 <a class="btn" href="{{url_for('logout')}}">Log out</a>
             {% endif %}
